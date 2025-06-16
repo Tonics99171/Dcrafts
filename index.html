@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Обо мне</title>
+</head>
+<body>
+  <h1>Привет! Я Дима</h1>
+  <p>Я начинающий веб-разработчик. Сейчас учу HTML и хочу научиться делать сайты!</p>
+
+  <h2>Мои интересы:</h2>
+  <ul>
+    <li>Создание сайтов</li>
+    <li>Программирование</li>
+    <li>Игры</li>
+    <li>Музыка</li>
+  </ul>
+
+  <h2>Оставьте комментарий:</h2>
+  <form>
+    <label for="name">Имя:</label><br>
+    <input type="text" id="name" name="name"><br><br>
+
+    <label for="comment">Комментарий:</label><br>
+    <textarea id="comment" name="comment" rows="4" cols="40"></textarea><br><br>
+
+    <button type="button" onclick="addComment()">Отправить</button>
+  </form>
+
+  <h3>Комментарии:</h3>
+  <div id="comments"></div>
+
+  <script>
+    // Загрузка комментариев из localStorage при загрузке страницы
+    window.onload = function() {
+      const savedComments = localStorage.getItem('comments');
+      if (savedComments) {
+        document.getElementById('comments').innerHTML = savedComments;
+      }
+    };
+
+    function addComment() {
+      const name = document.getElementById("name").value.trim();
+      const comment = document.getElementById("comment").value.trim();
+
+      if (name && comment) {
+        const commentBlock = document.createElement("div");
+        commentBlock.innerHTML = `<strong>${escapeHTML(name)}</strong>: ${escapeHTML(comment)}`;
+        document.getElementById("comments").appendChild(commentBlock);
+
+        // Обновляем localStorage
+        localStorage.setItem('comments', document.getElementById('comments').innerHTML);
+
+        // Очищаем поля формы
+        document.getElementById("name").value = '';
+        document.getElementById("comment").value = '';
+      } else {
+        alert("Пожалуйста, заполните оба поля.");
+      }
+    }
+
+    // Функция для экранирования HTML, чтобы избежать XSS
+    function escapeHTML(str) {
+      return str.replace(/[&<>"']/g, function(match) {
+        const escape = {
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#39;'
+        };
+        return escape[match];
+      });
+    }
+  </script>
+</body>
+</html>
