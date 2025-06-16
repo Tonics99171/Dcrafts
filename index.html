@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Обо мне</title>
 </head>
 <body>
@@ -17,12 +17,12 @@
   </ul>
 
   <h2>Оставьте комментарий:</h2>
-  <form>
-    <label for="name">Имя:</label><br>
-    <input type="text" id="name" name="name"><br><br>
+  <form onsubmit="return false;">
+    <label for="name">Имя:</label><br />
+    <input type="text" id="name" name="name" /><br /><br />
 
-    <label for="comment">Комментарий:</label><br>
-    <textarea id="comment" name="comment" rows="4" cols="40"></textarea><br><br>
+    <label for="comment">Комментарий:</label><br />
+    <textarea id="comment" name="comment" rows="4" cols="40"></textarea><br /><br />
 
     <button type="button" onclick="addComment()">Отправить</button>
   </form>
@@ -31,27 +31,29 @@
   <div id="comments"></div>
 
   <script>
-    // Загрузка комментариев из localStorage при загрузке страницы
-    window.onload = function() {
-      const savedComments = localStorage.getItem('comments');
-      if (savedComments) {
-        document.getElementById('comments').innerHTML = savedComments;
-      }
-    };
+    // Функция загрузки комментариев из localStorage и отображения
+    function loadComments() {
+      const comments = JSON.parse(localStorage.getItem('comments') || '[]');
+      const commentsDiv = document.getElementById("comments");
+      commentsDiv.innerHTML = '';
+      comments.forEach(c => {
+        const div = document.createElement('div');
+        div.innerHTML = `<strong>${escapeHTML(c.name)}</strong>: ${escapeHTML(c.comment)}`;
+        commentsDiv.appendChild(div);
+      });
+    }
 
+    // Функция добавления комментария
     function addComment() {
       const name = document.getElementById("name").value.trim();
       const comment = document.getElementById("comment").value.trim();
 
       if (name && comment) {
-        const commentBlock = document.createElement("div");
-        commentBlock.innerHTML = `<strong>${escapeHTML(name)}</strong>: ${escapeHTML(comment)}`;
-        document.getElementById("comments").appendChild(commentBlock);
+        const comments = JSON.parse(localStorage.getItem('comments') || '[]');
+        comments.push({ name, comment });
+        localStorage.setItem('comments', JSON.stringify(comments));
+        loadComments();
 
-        // Обновляем localStorage
-        localStorage.setItem('comments', document.getElementById('comments').innerHTML);
-
-        // Очищаем поля формы
         document.getElementById("name").value = '';
         document.getElementById("comment").value = '';
       } else {
@@ -59,19 +61,15 @@
       }
     }
 
-    // Функция для экранирования HTML, чтобы избежать XSS
-    function escapeHTML(str) {
-      return str.replace(/[&<>"']/g, function(match) {
-        const escape = {
-          '&': '&amp;',
-          '<': '&lt;',
-          '>': '&gt;',
-          '"': '&quot;',
-          "'": '&#39;'
-        };
-        return escape[match];
-      });
+    // Функция для защиты от XSS (экранирует HTML-теги)
+    function escapeHTML(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
     }
+
+    // Загружаем комментарии при загрузке страницы
+    window.onload = loadComments;
   </script>
 </body>
 </html>
